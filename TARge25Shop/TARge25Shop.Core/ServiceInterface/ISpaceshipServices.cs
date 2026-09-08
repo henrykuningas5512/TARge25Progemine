@@ -4,7 +4,7 @@ using TARge25Shop.Core.Dto;
 
 namespace TARge25Shop.Core.ServiceInterface
 {
-    internal interface ISpaceshipServices
+    public interface ISpaceshipServices
     {
 
         Task<Spaceship> Create(SpaceshipDto dto);

@@ -2,6 +2,7 @@
 using TARge25Shop.Core.Domain;
 using TARge25Shop.Core.Dto;
 using TARge25Shop.Data;
+using TARge25Shop.Core.ServiceInterface;
 
 namespace TARge25Shop.ApplicatsionServices.Services
 {
@@ -25,13 +26,13 @@ namespace TARge25Shop.ApplicatsionServices.Services
             //et andmed liiguvad dto-st domain objekti
             Spaceship spaceShip = new();
 
-            spaceShip.Id = dto.Id;
+            spaceShip.Id = Guid.NewGuid();
             spaceShip.Name = dto.Name;
             spaceShip.ShipType = dto.ShipType;
             spaceShip.Crew = dto.Crew;
             spaceShip.EnginePower = dto.EnginePower;
-            spaceShip.CreatedAt = dto.CreatedAt;
-            spaceShip.UpdatedAt = dto.UpdatedAt;
+            spaceShip.CreatedAt = DateTime.Now;
+            spaceShip.UpdatedAt = DateTime.Now;
 
             //andmete salvestamine andmebaasi
             _context.Spaceships.Add(spaceShip);
