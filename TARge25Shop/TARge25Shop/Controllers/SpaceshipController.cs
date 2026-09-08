@@ -21,12 +21,14 @@ namespace TARge25Shop.Controllers
         {
             return View();
         }
+
         [HttpGet]
         public IActionResult Create()
         {
             return View();
         }
-        [HttpGet]
+
+        [HttpPost]
         public async Task<IActionResult> Create(SpaceshipCreateViewModel vm)
         {
             var dto = new SpaceshipDto
@@ -37,15 +39,17 @@ namespace TARge25Shop.Controllers
                 EnginePower = vm.EnginePower
             };
 
-            //Nüüd kutsume teenuse välja , et luua uus kosmoselaev. See on
-            //asünkroone tegevus ja kasutame awaiti.
+            //Nüüd kutsume teenuse välja, et luua uus kosmoselaev. See on
+            //asünkroonne tegevus ja kasutame await.
             var result = await _spaceshipServices.Create(dto);
 
             if (result == null)
             {
-                
+                // Kui kosmoselaeva loomine ebaõnnestus, siis võime kuvada veateate
+                // ja jätta kasutaja samale lehele.
                 return RedirectToAction(nameof(Index));
             }
+
             return RedirectToAction(nameof(Index));
         }
     }
