@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Xml.Linq;
 using TARge25Shop.Core.Dto;
 using TARge25Shop.Core.ServiceInterface;
 using TARge25Shop.Data;
@@ -11,11 +10,11 @@ namespace TARge25Shop.Controllers
     {
         private readonly ISpaceshipServices _spaceshipServices;
         private readonly TARge25ShopContext _context;
-        private readonly TARge25ShopContext? context;
 
         public SpaceshipController
             (
-                ISpaceshipServices spaceshipServices
+                ISpaceshipServices spaceshipServices,
+                TARge25ShopContext context
             )
         {
             _spaceshipServices = spaceshipServices;
@@ -24,10 +23,10 @@ namespace TARge25Shop.Controllers
 
         public IActionResult Index()
         {
-            //Kutsume teenuse välja, et saada kõik kosmoselaevad. See on
-            //asünkroone tegevus ja kasutame await.
-            //constructoris tuleb välja kutsuda Db context, et 
-            //saaksime andmeid kätte. Seejärel kutsume teenuse välja.
+
+            // Kutsume teenuse välja, et saada kõik kosmoselaevad. 
+            //constructoris tuleb välja kutsuda DbContext, et
+            //saaksime andmeid kätte.
             var result = _context.Spaceships
                 .Select(x => new SpaceshipIndexViewModel
                 {
@@ -37,7 +36,8 @@ namespace TARge25Shop.Controllers
                     CreatedAt = x.CreatedAt,
                     Crew = x.Crew
                 });
-            return View();
+
+            return View(result);
         }
 
         [HttpGet]
@@ -69,6 +69,56 @@ namespace TARge25Shop.Controllers
             }
 
             return RedirectToAction(nameof(Index));
+        }
+        [HttpGet]
+        public async Task<IActionResult> Update(Guid id)
+        {
+            var spaceship = await _spaceshipServices.DetailAsync(id);
+
+            if (spaceship ==null)
+            {
+                return NotFound();
+            }
+
+            var vm = new SpaceshipUpdateViewModel
+            {
+                Id = spaceship.Id,
+                Name = spaceship.Name,
+                ShipType = spaceship.ShipType,
+                Crew = spaceship.Crew,
+                EnginePower = spaceship.EnginePower,
+                CreatedAt = spaceship.CreatedAt,
+                UpdatedAt = spaceship.UpdatedAt
+            };
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Update(SpaceshipUpdateViewModel vm)
+        {
+            var dto = new SpaceshipDto()
+            {
+                Id = vm.Id,
+                Name = vm.Name,
+                ShipType = vm.ShipType,
+                Crew = vm.Crew,
+                EnginePower = vm.EnginePower,
+                CreatedAt = vm.CreatedAt,
+                UpdatedAt = vm.UpdatedAt
+            };
+
+            var result = await _spaceshipServices.Update(dto);
+            if(result == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            return RedirectToAction(nameof(Index));
+        }
+        public async Task<IActionResult> Delete(Guid id)
+        {
+
+            return View();
         }
     }
 }

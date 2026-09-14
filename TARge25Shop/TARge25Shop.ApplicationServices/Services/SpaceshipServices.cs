@@ -1,4 +1,5 @@
-﻿using TARge25Shop.Core.Domain;
+﻿using Microsoft.EntityFrameworkCore;
+using TARge25Shop.Core.Domain;
 using TARge25Shop.Core.Dto;
 using TARge25Shop.Core.ServiceInterface;
 using TARge25Shop.Data;
@@ -26,7 +27,7 @@ namespace TARge25Shop.ApplicationServices.Services
             //et andmed liiguvad dto-st domain objekt
             Spaceship spaceShip = new();
 
-            spaceShip.Id = dto.Id;
+            spaceShip.Id = Guid.NewGuid();
             spaceShip.Name = dto.Name;
             spaceShip.ShipType = dto.ShipType;
             spaceShip.Crew = dto.Crew;
@@ -39,6 +40,46 @@ namespace TARge25Shop.ApplicationServices.Services
             await _context.SaveChangesAsync();
 
             return spaceShip;
+        }
+
+        //teha update meetod, mis võtab vastu dto ja uuendab olemasolevat kosmoselaeva
+        public async Task<Spaceship> Update(SpaceshipDto dto)
+        {
+            //siin peab tegema vaheinstansi dto ja domain vahel,
+            //et andmed liiguvad dto-st domain objekt
+            Spaceship spaceShip = new();
+
+            spaceShip.Id = dto.Id;
+            spaceShip.Name = dto.Name;
+            spaceShip.ShipType = dto.ShipType;
+            spaceShip.Crew = dto.Crew;
+            spaceShip.EnginePower = dto.EnginePower;
+            spaceShip.CreatedAt = dto.CreatedAt;
+            spaceShip.UpdatedAt = DateTime.Now;
+
+            //andmete uuendamine andmebaasis
+            _context.Spaceships.Update(spaceShip);
+            await _context.SaveChangesAsync();
+
+            return spaceShip;
+        }
+
+        public async Task<Spaceship> DetailAsync(Guid id)
+        {
+            var spaceship = await _context.Spaceships
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            return spaceship;
+        }
+        public async Task<Spaceship> Delete(Guid id)
+        {
+            var result = await _context.Spaceships
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            _context.Spaceships.Remove(result);
+            await _context.SaveChangesAsync();
+
+            return result;
         }
     }
 }
