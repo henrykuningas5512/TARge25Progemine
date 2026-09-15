@@ -70,12 +70,13 @@ namespace TARge25Shop.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
         [HttpGet]
         public async Task<IActionResult> Update(Guid id)
         {
             var spaceship = await _spaceshipServices.DetailAsync(id);
 
-            if (spaceship ==null)
+            if (spaceship == null)
             {
                 return NotFound();
             }
@@ -109,16 +110,75 @@ namespace TARge25Shop.Controllers
             };
 
             var result = await _spaceshipServices.Update(dto);
-            if(result == null)
+
+            if (result == null)
             {
                 return RedirectToAction(nameof(Index));
             }
+
             return RedirectToAction(nameof(Index));
         }
+
+        [HttpGet]
         public async Task<IActionResult> Delete(Guid id)
         {
+            var spaceship = await _spaceshipServices.DetailAsync(id);
 
-            return View();
+            if (spaceship == null)
+            {
+                return NotFound();
+            }
+
+            //see on vaheinstants domaini ja vm vahel
+            var vm = new SpaceshipDeleteViewModel
+            {
+                Id = spaceship.Id,
+                Name = spaceship.Name,
+                ShipType = spaceship.ShipType,
+                Crew = spaceship.Crew,
+                EnginePower = spaceship.EnginePower,
+                CreatedAt = spaceship.CreatedAt,
+                UpdatedAt = spaceship.UpdatedAt
+            };
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteConfirmation(Guid id)
+        {
+            var spaceship = await _spaceshipServices.Delete(id);
+
+            if (spaceship == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(Guid id)
+        {
+            var spaceship = await _spaceshipServices.DetailAsync(id);
+
+            if (spaceship == null)
+            {
+                return NotFound();
+            }
+
+            var vm = new SpaceshipDetailsViewModel
+            {
+                Id = spaceship.Id,
+                Name = spaceship.Name,
+                ShipType = spaceship.ShipType,
+                Crew = spaceship.Crew,
+                EnginePower = spaceship.EnginePower,
+                CreatedAt = spaceship.CreatedAt,
+                UpdatedAt = spaceship.UpdatedAt
+            };
+
+            return View(vm);
         }
     }
 }

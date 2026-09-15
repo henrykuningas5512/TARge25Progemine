@@ -1,6 +1,6 @@
 ﻿namespace TARge25Shop.Models.Spaceship
 {
-    public class SpaceshipUpdateViewModel
+    public class SpaceshipDetailsViewModel
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
