@@ -1,4 +1,6 @@
-﻿namespace TARge25Shop.Models.Spaceship
+﻿using TARge25Shop.Core.ServiceInterface;
+
+namespace TARge25Shop.Models.Spaceship
 {
     public class SpaceshipCreateUpdateViewModel
     {
@@ -7,6 +9,10 @@
         public string ShipType { get; set; } = string.Empty;
         public int Crew { get; set; }
         public int EnginePower { get; set; }
+
+        public List<IFormFiles> Files { get; set; }
+        public List<ImageViewModel> Image { get; set; }
+        = new List<ImageViewModel>();
 
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
