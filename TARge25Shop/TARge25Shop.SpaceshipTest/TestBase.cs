@@ -13,7 +13,7 @@ using TARge25Shop.SpaceshipTest.Mock;
 
 namespace TARge25Shop.SpaceshipTest
 {
-    internal class TestBase
+    public class TestBase
     {
 
         protected IServiceProvider serviceProvider { get; set; }
@@ -22,6 +22,7 @@ namespace TARge25Shop.SpaceshipTest
         {
             var services = new ServiceCollection();
             SetupServices(services);
+            serviceProvider = services.BuildServiceProvider();
         }
 
         public virtual void SetupServices(ServiceCollection services)

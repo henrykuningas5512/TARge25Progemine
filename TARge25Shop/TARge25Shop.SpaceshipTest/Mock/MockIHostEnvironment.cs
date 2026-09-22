@@ -6,7 +6,7 @@ using System.Text;
 
 namespace TARge25Shop.SpaceshipTest.Mock
 {
-    public class MockIHostEnvironment : IHostEnvironment
+    public class MockIHostEnviroment : IHostEnvironment
     {
         public string EnvironmentName { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public string ApplicationName { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
