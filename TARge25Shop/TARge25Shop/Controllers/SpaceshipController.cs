@@ -4,7 +4,6 @@ using TARge25Shop.Core.Dto;
 using TARge25Shop.Core.ServiceInterface;
 using TARge25Shop.Data;
 using TARge25Shop.Models.Spaceship;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace TARge25Shop.Controllers
 {
@@ -141,7 +140,8 @@ namespace TARge25Shop.Controllers
             {
                 return NotFound();
             }
-                var images = await _context.FileToApis
+
+            var images = await _context.FileToApis
                 .Where(x => x.SpaceshipId == id)
                 .Select(y => new ImageViewModel
                 {
@@ -150,17 +150,16 @@ namespace TARge25Shop.Controllers
                 }).ToArrayAsync();
 
             //see on vaheinstants domaini ja vm vahel
-            var vm = new SpaceshipDeleteViewModel
-            {
-                vm.Id = spaceship.Id;
-                vm.Name = spaceship.Name;
-                vm.ShipType = spaceship.ShipType;
-                vm.Crew = spaceship.Crew;
-                vm.EnginePower = spaceship.EnginePower;
-                vm.CreatedAt = spaceship.CreatedAt;
-                vm.UpdatedAt = spaceship.UpdatedAt;
-                vm.Images.AddRange(images);
-            };
+            var vm = new SpaceshipDeleteViewModel();
+
+            vm.Id = spaceship.Id;
+            vm.Name = spaceship.Name;
+            vm.ShipType = spaceship.ShipType;
+            vm.Crew = spaceship.Crew;
+            vm.EnginePower = spaceship.EnginePower;
+            vm.CreatedAt = spaceship.CreatedAt;
+            vm.UpdatedAt = spaceship.UpdatedAt;
+            vm.Image.AddRange(images);
 
             return View(vm);
         }
@@ -179,6 +178,7 @@ namespace TARge25Shop.Controllers
         }
 
         [HttpGet]
+        //teha Detaili vaate meetod
         public async Task<IActionResult> Details(Guid id)
         {
             var spaceship = await _spaceshipServices.DetailAsync(id);
@@ -196,7 +196,7 @@ namespace TARge25Shop.Controllers
                     ImageId = y.Id
                 }).ToArrayAsync();
 
-            //tuleb kasutada AddRage, et saaada pildid vm kaasa
+            //tuleb kasutada AddRange, et saada pildid vm kaasa
             //see on vaheinstants domaini ja vm vahel
             var vm = new SpaceshipDetailsViewModel();
 
@@ -207,8 +207,7 @@ namespace TARge25Shop.Controllers
             vm.EnginePower = spaceship.EnginePower;
             vm.CreatedAt = spaceship.CreatedAt;
             vm.UpdatedAt = spaceship.UpdatedAt;
-            vm.Images.AddRange(images);
-            
+            vm.Image.AddRange(images);
 
             return View(vm);
         }
