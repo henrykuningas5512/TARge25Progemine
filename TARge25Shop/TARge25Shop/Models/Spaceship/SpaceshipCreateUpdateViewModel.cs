@@ -1,20 +1,26 @@
-﻿using TARge25Shop.Core.ServiceInterface;
+﻿using Microsoft.AspNetCore.Http;
 
 namespace TARge25Shop.Models.Spaceship
 {
     public class SpaceshipCreateUpdateViewModel
     {
         public Guid? Id { get; set; }
+
         public string Name { get; set; } = string.Empty;
+
         public string ShipType { get; set; } = string.Empty;
+
         public int Crew { get; set; }
+
         public int EnginePower { get; set; }
 
-        public List<IFormFiles> Files { get; set; }
+        public List<IFormFile> Files { get; set; } = new();
+
         public List<ImageViewModel> Image { get; set; }
-        = new List<ImageViewModel>();
+            = new List<ImageViewModel>();
 
         public DateTime CreatedAt { get; set; }
+
         public DateTime UpdatedAt { get; set; }
     }
 }
