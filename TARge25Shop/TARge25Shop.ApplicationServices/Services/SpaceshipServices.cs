@@ -4,27 +4,19 @@ using TARge25Shop.Core.Dto;
 using TARge25Shop.Core.ServiceInterface;
 using TARge25Shop.Data;
 
-
 namespace TARge25Shop.ApplicationServices.Services
 {
     public class SpaceshipServices : ISpaceshipServices
     {
         private readonly TARge25ShopContext _context;
 
-        public SpaceshipServices
-            (
-                TARge25ShopContext context
-            )
+        public SpaceshipServices(TARge25ShopContext context)
         {
             _context = context;
         }
 
-        //see meetod on vaja controlleris esile kutsuda
-        //peab lisama interface, et kutsuda see meetod välja
         public async Task<Spaceship> Create(SpaceshipDto dto)
         {
-            //siin peab tegema vaheinstansi dto ja domain vahel,
-            //et andmed liiguvad dto-st domain objekt
             Spaceship spaceShip = new();
 
             spaceShip.Id = Guid.NewGuid();
@@ -35,18 +27,15 @@ namespace TARge25Shop.ApplicationServices.Services
             spaceShip.CreatedAt = DateTime.Now;
             spaceShip.UpdatedAt = DateTime.Now;
 
-            //andmete salvestamine andmebaasi
             _context.Spaceships.Add(spaceShip);
+
             await _context.SaveChangesAsync();
 
             return spaceShip;
         }
 
-        //teha update meetod, mis võtab vastu dto ja uuendab olemasolevat kosmoselaeva
         public async Task<Spaceship> Update(SpaceshipDto dto)
         {
-            //siin peab tegema vaheinstansi dto ja domain vahel,
-            //et andmed liiguvad dto-st domain objekt
             Spaceship spaceShip = new();
 
             spaceShip.Id = dto.Id;
@@ -57,8 +46,8 @@ namespace TARge25Shop.ApplicationServices.Services
             spaceShip.CreatedAt = dto.CreatedAt;
             spaceShip.UpdatedAt = DateTime.Now;
 
-            //andmete uuendamine andmebaasis
             _context.Spaceships.Update(spaceShip);
+
             await _context.SaveChangesAsync();
 
             return spaceShip;
@@ -71,15 +60,22 @@ namespace TARge25Shop.ApplicationServices.Services
 
             return spaceship;
         }
+
         public async Task<Spaceship> Delete(Guid id)
         {
-            var result = await _context.Spaceships
+            var spaceship = await _context.Spaceships
                 .FirstOrDefaultAsync(x => x.Id == id);
 
-            _context.Spaceships.Remove(result);
+            if (spaceship == null)
+            {
+                return null;
+            }
+
+            _context.Spaceships.Remove(spaceship);
+
             await _context.SaveChangesAsync();
 
-            return result;
+            return spaceship;
         }
     }
 }
