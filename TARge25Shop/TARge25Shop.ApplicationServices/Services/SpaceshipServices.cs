@@ -5,7 +5,6 @@ using TARge25Shop.Core.Dto;
 using TARge25Shop.Core.ServiceInterface;
 using TARge25Shop.Data;
 
-
 namespace TARge25Shop.ApplicationServices.Services
 {
     public class SpaceshipServices : ISpaceshipServices
@@ -17,19 +16,16 @@ namespace TARge25Shop.ApplicationServices.Services
             (
                 TARge25ShopContext context,
                 IFileServices fileServices
-            )
+            );
+        public SpaceshipServices(TARge25ShopContext context)
         {
             _context = context;
             _fileServices = fileServices;
             
         }
 
-        //see meetod on vaja controlleris esile kutsuda
-        //peab lisama interface, et kutsuda see meetod välja
         public async Task<Spaceship> Create(SpaceshipDto dto)
         {
-            //siin peab tegema vaheinstansi dto ja domain vahel,
-            //et andmed liiguvad dto-st domain objekt
             Spaceship spaceShip = new();
 
             spaceShip.Id = Guid.NewGuid();
@@ -45,18 +41,15 @@ namespace TARge25Shop.ApplicationServices.Services
             //esile service clasis
             _fileServices.FilesToApi(dto, spaceShip);
 
-            //andmete salvestamine andmebaasi
             _context.Spaceships.Add(spaceShip);
+
             await _context.SaveChangesAsync();
 
             return spaceShip;
         }
 
-        //teha update meetod, mis võtab vastu dto ja uuendab olemasolevat kosmoselaeva
         public async Task<Spaceship> Update(SpaceshipDto dto)
         {
-            //siin peab tegema vaheinstansi dto ja domain vahel,
-            //et andmed liiguvad dto-st domain objekt
             Spaceship spaceShip = new();
 
             spaceShip.Id = dto.Id;
@@ -67,8 +60,8 @@ namespace TARge25Shop.ApplicationServices.Services
             spaceShip.CreatedAt = dto.CreatedAt;
             spaceShip.UpdatedAt = DateTime.Now;
 
-            //andmete uuendamine andmebaasis
             _context.Spaceships.Update(spaceShip);
+
             await _context.SaveChangesAsync();
 
             return spaceShip;
@@ -81,15 +74,22 @@ namespace TARge25Shop.ApplicationServices.Services
 
             return spaceship;
         }
+
         public async Task<Spaceship> Delete(Guid id)
         {
-            var result = await _context.Spaceships
+            var spaceship = await _context.Spaceships
                 .FirstOrDefaultAsync(x => x.Id == id);
 
-            _context.Spaceships.Remove(result);
+            if (spaceship == null)
+            {
+                return null;
+            }
+
+            _context.Spaceships.Remove(spaceship);
+
             await _context.SaveChangesAsync();
 
-            return result;
+            return spaceship;
         }
     }
 }
