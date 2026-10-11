@@ -10,13 +10,16 @@ namespace TARge25Shop.ApplicationServices.Services
     public class KindergardenServices : IKindergardenServices
     {
         private readonly TARge25ShopContext _context;
+        private readonly IFileServices _fileServices;
 
         public KindergardenServices
             (
-                TARge25ShopContext context
+                TARge25ShopContext context,
+                IFileServices fileServices
             )
         {
             _context = context;
+            _fileServices = fileServices;
         }
 
         //see meetod on vaja controlleris esile kutsuda
@@ -38,6 +41,7 @@ namespace TARge25Shop.ApplicationServices.Services
             //andmete salvestamine andmebaasi
             _context.Kindergarden.Add(kindergarden);
             await _context.SaveChangesAsync();
+            await _fileServices.FilesToApi(dto, kindergarden);
 
             return kindergarden;
         }
@@ -47,19 +51,15 @@ namespace TARge25Shop.ApplicationServices.Services
         {
             //siin peab tegema vaheinstansi dto ja domain vahel,
             //et andmed liiguvad dto-st domain objekt
-            Kindergarden kindergarden = new();
-
-            kindergarden.Id = dto.Id;
+            var kindergarden = await _context.Kindergarden.FirstOrDefaultAsync(x => x.Id == dto.Id);
+            if (kindergarden == null) return null;
             kindergarden.GroupName = dto.GroupName;
             kindergarden.ChildrenCount = dto.ChildrenCount;
             kindergarden.KindergartenName = dto.KindergartenName;
             kindergarden.TeacherName = dto.TeacherName;
-            kindergarden.CreatedAt = dto.CreatedAt;
             kindergarden.UpdatedAt = DateTime.Now;
-
-            //andmete uuendamine andmebaasis
-            _context.Kindergarden.Update(kindergarden);
             await _context.SaveChangesAsync();
+            await _fileServices.FilesToApi(dto, kindergarden);
 
             return kindergarden;
         }
@@ -76,14 +76,19 @@ namespace TARge25Shop.ApplicationServices.Services
             var result = await _context.Kindergarden
                 .FirstOrDefaultAsync(y => y.Id == id);
 
+            if (result == null) return null;
+
+            var images = await _context.FileToApis
+                .Where(x => x.KindergardenId == id)
+                .Select(x => new FileToApiDto { Id = x.Id })
+                .ToArrayAsync();
+            await _fileServices.RemoveImagesFromApi(images);
+
             _context.Kindergarden.Remove(result);
             await _context.SaveChangesAsync();
 
             return result;
 
-
-
-            siia uut koodi ka
         }
     }
 }

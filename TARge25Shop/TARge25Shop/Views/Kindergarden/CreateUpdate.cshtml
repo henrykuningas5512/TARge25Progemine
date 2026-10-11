@@ -55,8 +55,8 @@ else
         @foreach (var image in Model.Image)
         {
             <partial name="_Images" model="image" />
-            <input asp-action="removeImage" asp-controller="kindergarden" asp-route-imageId="@image.ImageId"
-                   type="submit" class="btn btn-danger" value="Remove Image" />
+            <button formaction="@Url.Action("RemoveImage", "Kindergarden")" formmethod="post"
+                    name="ImageId" value="@image.ImageId" class="btn btn-danger">Remove image</button>
         }
     </div>
 

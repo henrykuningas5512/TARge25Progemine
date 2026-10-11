@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using TARge25Shop.ApplicationServices.Services;
+using Microsoft.EntityFrameworkCore;
 using TARge25Shop.Core.Dto;
 using TARge25Shop.Core.ServiceInterface;
 using TARge25Shop.Data;
 using TARge25Shop.Models.Kindergarden;
-using TARge25Shop.Models.KindergardenImageViewModel;
 
 namespace TARge25Shop.Controllers
 {
@@ -12,13 +11,16 @@ namespace TARge25Shop.Controllers
     {
         private readonly IKindergardenServices _kindergardenServices;
         private readonly TARge25ShopContext _context;
+        private readonly IFileServices _fileServices;
 
         public KindergardenController(
             IKindergardenServices kindergardenServices,
-            TARge25ShopContext context)
+            TARge25ShopContext context,
+            IFileServices fileServices)
         {
             _kindergardenServices = kindergardenServices;
             _context = context;
+            _fileServices = fileServices;
         }
 
         public IActionResult Index()
@@ -61,7 +63,14 @@ namespace TARge25Shop.Controllers
                 KindergartenName = vm.KindergartenName,
                 TeacherName = vm.TeacherName,
                 CreatedAt = vm.CreatedAt,
-                UpdatedAt = vm.UpdatedAt
+                UpdatedAt = vm.UpdatedAt,
+                Files = vm.Files ?? new List<IFormFile>(),
+                Image = vm.Image.Select(x => new FileToApiDto
+                {
+                    Id = x.ImageId,
+                    ExistingFilePath = x.FilePath,
+                    KindergardenId = x.KindergardenId
+                })
             };
 
             var result = await _kindergardenServices.Create(dto);
@@ -92,7 +101,8 @@ namespace TARge25Shop.Controllers
                 KindergartenName = kindergarden.KindergartenName,
                 TeacherName = kindergarden.TeacherName,
                 CreatedAt = kindergarden.CreatedAt,
-                UpdatedAt = kindergarden.UpdatedAt
+                UpdatedAt = kindergarden.UpdatedAt,
+                Image = (await FileFromDatabase(id)).ToList()
             };
 
             return View("CreateUpdate", vm);
@@ -114,7 +124,14 @@ namespace TARge25Shop.Controllers
                 KindergartenName = vm.KindergartenName,
                 TeacherName = vm.TeacherName,
                 CreatedAt = vm.CreatedAt,
-                UpdatedAt = vm.UpdatedAt
+                UpdatedAt = vm.UpdatedAt,
+                Files = vm.Files ?? new List<IFormFile>(),
+                Image = vm.Image.Select(x => new FileToApiDto
+                {
+                    Id = x.ImageId,
+                    ExistingFilePath = x.FilePath,
+                    KindergardenId = x.KindergardenId
+                })
             };
 
             var result = await _kindergardenServices.Update(dto);
@@ -145,7 +162,8 @@ namespace TARge25Shop.Controllers
                 KindergartenName = kindergarden.KindergartenName,
                 TeacherName = kindergarden.TeacherName,
                 CreatedAt = kindergarden.CreatedAt,
-                UpdatedAt = kindergarden.UpdatedAt
+                UpdatedAt = kindergarden.UpdatedAt,
+                Image = (await FileFromDatabase(id)).ToList()
             };
 
             return View(vm);
@@ -182,7 +200,8 @@ namespace TARge25Shop.Controllers
                 KindergartenName = kindergarden.KindergartenName,
                 TeacherName = kindergarden.TeacherName,
                 CreatedAt = kindergarden.CreatedAt,
-                UpdatedAt = kindergarden.UpdatedAt
+                UpdatedAt = kindergarden.UpdatedAt,
+                Image = (await FileFromDatabase(id)).ToList()
             };
 
             return View(vm);
@@ -190,14 +209,12 @@ namespace TARge25Shop.Controllers
         [HttpPost]
         public async Task<IActionResult> RemoveImage(KindergardenImageViewModel vm)
         {
-            var dto = new FileToDatabaseDto()
+            var dto = new FileToApiDto()
             {
                 Id = vm.ImageId
             };
 
-            var image = await _fileService.RemoveImageFromDatabase(dto);
-
-            var realEstateId = image.RealEstateId;
+            var image = await _fileServices.RemoveImageFromApi(dto);
 
             if (image == null)
             {
@@ -206,21 +223,18 @@ namespace TARge25Shop.Controllers
             //muuta see niimoodi, et pärast pildi kustutamist jääks kasutaja
             //samale kinnisvara detailide lehele, mitte ei suunataks tagasi index lehele
             //return RedirectToAction(nameof(Index));
-            return RedirectToAction(nameof(Update), new { id = realEstateId });
+            return RedirectToAction(nameof(Update), new { id = image.KindergardenId });
         }
 
         private async Task<KindergardenImageViewModel[]> FileFromDatabase(Guid id)
         {
-            return await _context.FileToDatabases
-                .Where(x => x.RealEstateId == id)
+            return await _context.FileToApis
+                .Where(x => x.KindergardenId == id)
                 .Select(y => new KindergardenImageViewModel
                 {
                     ImageId = y.Id,
-                    ImageTitle = y.ImageTitle,
-                    ImageData = y.ImageData,
+                    FilePath = y.ExistingFilePath,
                     KindergardenId = y.KindergardenId,
-                    Image = string.Format("data:image/gif;base64,{0}",
-                        Convert.ToBase64String(y.ImageData))
                 }).ToArrayAsync();
         }
     }
