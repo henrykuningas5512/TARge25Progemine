@@ -3,9 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TARge25Shop.Core.Dto;
 using TARge25Shop.Core.ServiceInterface;
 using TARge25Shop.Models.Kindergarden;
-using TARge25Shop.Core.ServiceInterface;
 using TARge25Shop.Data;
-using TARge25Shop.Models.Kindergarden;
 
 namespace TARge25Shop.Controllers
 {

@@ -17,6 +17,9 @@ namespace TARge25Shop.Data.Migrations
                 table: "FileToDatabase",
                 type: "uniqueidentifier",
                 nullable: true);
+
+            migrationBuilder.DropTable(
+                name: "FileToApis");
         }
 
         /// <inheritdoc />
