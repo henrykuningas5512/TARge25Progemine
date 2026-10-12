@@ -59,7 +59,7 @@ namespace TARge25Shop.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("FileToDatabases");
+                    b.ToTable("FileToDatabase");
                 });
 
             modelBuilder.Entity("TARge25Shop.Core.Domain.Kindergarden", b =>
@@ -78,7 +78,7 @@ namespace TARge25Shop.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("KindergartenName")
+                    b.Property<string>("KindergardenName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

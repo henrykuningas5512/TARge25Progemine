@@ -1,86 +1,76 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
 using TARge25Shop.Core.Domain;
 using TARge25Shop.Core.Dto;
 using TARge25Shop.Core.ServiceInterface;
+using TARge25Shop.Core.Domain;
 using TARge25Shop.Data;
 
 namespace TARge25Shop.ApplicationServices.Services
 {
     public class FileServices : IFileServices
     {
-        private readonly IHostEnvironment _environment;
         private readonly TARge25ShopContext _context;
 
-        public FileServices(IHostEnvironment environment, TARge25ShopContext context)
+        public FileServices
+            (
+                TARge25ShopContext context
+            )
         {
-            _environment = environment;
             _context = context;
         }
-
-        public async Task FilesToApi(KindergardenDto dto, Kindergarden domain)
+        public void UploadFilesToDatabase(KindergardenDto dto, Kindergarden domain)
         {
-            if (dto.Files == null || dto.Files.Count == 0) return;
-
-            var uploadsFolder = Path.Combine(_environment.ContentRootPath, "wwwroot", "multipleFileUpload");
-            Directory.CreateDirectory(uploadsFolder);
-
-            foreach (var file in dto.Files)
+            // Toimub kontroll, kas on faile või ei ole
+            if (dto.Files != null && dto.Files.Count > 0)
             {
-                if (file == null || file.Length == 0) continue;
-
-                var uniqueFileName = $"{Guid.NewGuid():N}_{Path.GetFileName(file.FileName)}";
-                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-                await using (var stream = new FileStream(filePath, FileMode.CreateNew))
+                // Tuleb kasutada foreachi, et mitu faili ülesse laadida
+                foreach (var file in dto.Files)
                 {
-                    await file.CopyToAsync(stream);
+                    //teha muutuja, mis salvestab faili nime
+                    using (var target = new MemoryStream())
+                    {
+                        FileToDatabase files = new FileToDatabase()
+                        {
+                            Id = Guid.NewGuid(),
+                            ImageTitle = file.FileName,
+                            KindergardenId = domain.Id
+                        };
+
+                        file.CopyTo(target);
+                        files.ImageData = target.ToArray();
+
+                        _context.FileToDatabase.AddAsync(files);
+                    }
                 }
-
-                await _context.FileToApis.AddAsync(new FileToApi
-                {
-                    Id = Guid.NewGuid(),
-                    ExistingFilePath = uniqueFileName,
-                    KindergardenId = domain.Id
-                });
             }
-
-            await _context.SaveChangesAsync();
         }
 
-        public async Task<FileToApi?> RemoveImageFromApi(FileToApiDto dto)
+        public async Task<FileToDatabase> RemoveImagesFromDatabase(FileToDatabaseDto[] dtos)
         {
-            var image = await _context.FileToApis.FirstOrDefaultAsync(x => x.Id == dto.Id);
-            if (image == null) return null;
-
-            DeleteUploadedFile(image.ExistingFilePath);
-            _context.FileToApis.Remove(image);
-            await _context.SaveChangesAsync();
-            return image;
-        }
-
-        public async Task<List<FileToApi>> RemoveImagesFromApi(FileToApiDto[] dtos)
-        {
-            var removedImages = new List<FileToApi>();
             foreach (var dto in dtos)
             {
-                var image = await _context.FileToApis.FirstOrDefaultAsync(x => x.Id == dto.Id);
-                if (image == null) continue;
+                var imageId = await _context.FileToDatabase
+                    .Where(x => x.Id == dto.Id)
+                    .FirstOrDefaultAsync(x => x.Id == dto.Id);
 
-                DeleteUploadedFile(image.ExistingFilePath);
-                _context.FileToApis.Remove(image);
-                removedImages.Add(image);
+                _context.FileToDatabase.Remove(imageId);
             }
 
             await _context.SaveChangesAsync();
-            return removedImages;
+
+            return null;
         }
 
-        private void DeleteUploadedFile(string? fileName)
+        public async Task<FileToDatabase> RemoveImageFromDatabase(FileToDatabaseDto dto)
         {
-            if (string.IsNullOrWhiteSpace(fileName)) return;
-            var uploadsFolder = Path.Combine(_environment.ContentRootPath, "wwwroot", "multipleFileUpload");
-            var filePath = Path.Combine(uploadsFolder, Path.GetFileName(fileName));
-            if (File.Exists(filePath)) File.Delete(filePath);
+            var image = await _context.FileToDatabase
+                 .Where(x => x.Id == dto.Id)
+                 .FirstOrDefaultAsync();
+
+            _context.FileToDatabase.Remove(image);
+            await _context.SaveChangesAsync();
+
+            return image;
         }
     }
 }

@@ -1,11 +1,13 @@
-﻿namespace TARge25Shop.Models.Kindergarden
+﻿using TARge25Shop.Models.Kindergarden;
+
+namespace TARge25Shop.Models.Kindergarden
 {
     public class KindergardenCreateUpdateViewModel
     {
         public Guid? Id { get; set; }
         public string GroupName { get; set; } = string.Empty;
         public int ChildrenCount { get; set; }
-        public string KindergartenName { get; set; } = string.Empty;
+        public string KindergardenName { get; set; } = string.Empty;
         public string TeacherName { get; set; } = string.Empty;
 
         public List<IFormFile>? Files { get; set; }

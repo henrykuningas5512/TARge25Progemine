@@ -1,4 +1,5 @@
-﻿using TARge25Shop.Core.Domain;
+﻿using TARge25Shop.Core.Dto;
+using TARge25Shop.Core.Domain;
 using TARge25Shop.Core.Dto;
 
 

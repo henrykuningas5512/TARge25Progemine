@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using TARge25Shop.ApplicationServices.Services;
 using TARge25Shop.Core.ServiceInterface;
+using TARge25Shop.ApplicationServices.Services;
+using TARge25Shop.Core.ServiceInterface;
 using TARge25Shop.Data;
 
 namespace TARge25Shop
@@ -13,12 +15,13 @@ namespace TARge25Shop
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
-
             builder.Services.AddScoped<ISpaceshipServices, SpaceshipServices>();
-            builder.Services.AddScoped<IFileServices, FileServices>();
+
             builder.Services.AddScoped<IKindergardenServices, KindergardenServices>();
 
-            //on vaja alla laadida Microsoft.EntityFrameworkCore.SqlServer NuGet pakett,
+            builder.Services.AddScoped<IFileServices, FileServices>();
+
+            //On vaja alla laadida Microsoft.EEntityFrameworkCore.SqlServer NuGet pakett,
             //et kasutada UseSqlServer meetodit
             builder.Services.AddDbContext<TARge25ShopContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
